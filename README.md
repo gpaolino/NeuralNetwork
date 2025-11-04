@@ -16,5 +16,5 @@ make
 ## Execution
 
 ```bash
-TODO...
+./build/nn
 ```
