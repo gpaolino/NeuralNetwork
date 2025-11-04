@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #include "numstruct.h"
 #include "utils.h"
 
