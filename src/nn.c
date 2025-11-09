@@ -69,7 +69,7 @@ Network network_alloc(size_t *layer, size_t layer_count) {
 }
 
 // Initializes network values with random values. Note that activation is not part of th network parameters, thus it is used to store partial computations.
-void network_fill_rand(Network n, float high, float low) {
+void network_fill_rand(Network n, float low, float high) {
     for (size_t i = 0; i < n.layer_count - 1; i++) {
         matrix_fill_rand(n.weight[i], low, high);
         vector_fill_rand(n.bias[i], low, high);
@@ -110,6 +110,8 @@ int main(void) {
     */
     size_t xor_layer[] = {2, 2, 1};
     size_t xor_layer_count = sizeof(xor_layer) / sizeof(size_t);
+
+    printf("xor_layer_count: %zu\n\n", xor_layer_count);
 
     Network nn = network_alloc(xor_layer, xor_layer_count);
     network_fill_rand(nn, 0.0f, 1.0f);
