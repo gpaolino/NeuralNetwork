@@ -76,6 +76,7 @@ void network_fill_rand(Network n, float high, float low) {
     }
 }
 
+// Print Neural Network parametrs
 void network_print(Network n) {
     for (size_t i = 0; i < n.layer_count - 1; i++) {
         printf("Layer n. %d\n\n", (int)(i + 1));
