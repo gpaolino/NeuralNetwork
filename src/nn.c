@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "numstruct.h"
+#include "utils.h"
 
 /*
     NOTE: For this example we assume XOR training dataset as fixed, in the future we will make this variable
@@ -76,7 +77,7 @@ void network_fill_rand(Network n, float low, float high) {
     }
 }
 
-// Print Neural Network parametrs
+// Print Neural Network parameters.
 void network_print(Network n) {
     for (size_t i = 0; i < n.layer_count - 1; i++) {
         printf("Layer n. %d\n\n", (int)(i + 1));
@@ -89,8 +90,40 @@ void network_print(Network n) {
     }
 }
 
-// Vector network_forward(Network n, Vector input) {
-// }
+// Feed an input into the network and compute an output.
+Vector network_forward(Network n, Vector input) {
+    // First, set the input into the network as the first input layer
+    matrix_copy(vector_as_matrix(n.activation[0]), vector_as_matrix(input));
+
+    // Iterate across all the network layers
+    for (size_t i = 0; i < n.layer_count - 1; i++) {
+        // NN core operations: matrix multiplication, bias vector sum, then apply the activation function.
+
+        /*
+            First multiply the previous activation vector with the
+            weight matrix of the current layer. If this is the first hidden
+            layer, the activation vector will be the input vector.
+        */
+        matrix_mult(vector_as_matrix(n.activation[i + 1]),
+                    vector_as_matrix(n.activation[i]), n.weight[i]);
+
+        /*
+            Then, sum the bias vector of the current layer to the
+            result of the multiplication.
+        */
+        matrix_sum(vector_as_matrix(n.activation[i + 1]),
+                   vector_as_matrix(n.bias[i]));
+
+        /*
+            Finally, apply the activation function to prepare for the
+            next iteration. This is where the network becomes non-linear.
+        */
+        matrix_apply(vector_as_matrix(n.activation[i + 1]), sigmoid);
+    }
+
+
+    return n.activation[n.layer_count - 1];
+}
 
 // float network_cost(Network n) {
 // }
@@ -115,7 +148,14 @@ int main(void) {
 
     Network nn = network_alloc(xor_layer, xor_layer_count);
     network_fill_rand(nn, 0.0f, 1.0f);
-    network_print(nn);
+    //network_print(nn);
+
+    Vector input = vector_alloc(2);
+    input.data[0] = 0.0f;
+    input.data[1] = 0.1f;
+
+    Vector output = network_forward(nn, input);
+    vector_print(output);
 
     return 0;
 }

@@ -44,6 +44,66 @@ void matrix_print(Matrix m) {
     }
 }
 
+// Copy the src matrix values into the dst matrix.
+void matrix_copy(Matrix dst, Matrix src) {
+    if ((src.rows != dst.rows) || (src.cols != dst.cols)) {
+        fprintf(stderr, "[ERROR] - Matrix dimensions do not match matrix_copy()\n");
+        exit(1);
+    }
+
+    for (size_t i = 0; i < src.rows; i++) {
+        for (size_t j = 0; j < src.cols; j++) {
+            MATRIX_AT(dst, i, j) = MATRIX_AT(src, i, j);
+        }
+    }
+}
+
+// Perform matrix multiplication.
+void matrix_mult(Matrix dst, Matrix a, Matrix b) {
+    if (a.cols != b.rows) {
+        fprintf(stderr, "[ERROR] - Matrix dimensions do not work out matrix_mult(): a, b\n");
+        exit(1);
+    }
+
+    if ((dst.rows != a.rows) || (dst.cols != b.cols)) {
+        fprintf(stderr, "[ERROR] - Matrix dimensions do not work out matrix_mult(): dst\n");
+        exit(1);
+    }
+
+    for (size_t i = 0; i < dst.rows; i++) {
+        for (size_t j = 0; j < dst.cols; j++) {
+            // Compute dst[i][j]
+            MATRIX_AT(dst, i, j) = 0.0f;
+            for (size_t k = 0; k < a.cols; k++) {
+                MATRIX_AT(dst, i, j) += MATRIX_AT(a, i, k) * MATRIX_AT(b, k, j);
+            }
+        }
+    }
+}
+
+// Perform matrix sum.
+void matrix_sum(Matrix dst, Matrix a) {
+    if ((dst.rows != a.rows) || (dst.cols != a.cols)) {
+        fprintf(stderr, "[ERROR] - Matrix dimensions do not work out matrix_sum()\n");
+        exit(1);
+    }
+
+    for (size_t i = 0; i < dst.rows; i++) {
+        for (size_t j = 0; j < dst.cols; j++) {
+            MATRIX_AT(dst, i, j) += MATRIX_AT(a, i, j);
+        }
+    }
+}
+
+// Apply act_fn to all the matrix values. Uses function pointers in order to parametrize the act_fn.
+void matrix_apply(Matrix a, float (*act_fn)(float)) {
+    for (size_t i = 0; i < a.rows; i++) {
+        for (size_t j = 0; j < a.cols; j++) {
+            MATRIX_AT(a, i, j) = act_fn(MATRIX_AT(a, i, j));
+        }
+    }
+}
+
 // Allocates a Vector of length cols and zeroes it.
 Vector vector_alloc(size_t cols) {
     Vector v = {0};
@@ -76,3 +136,12 @@ void vector_print(Vector v) {
     }
     printf("\n");
 }
+
+// Cast a Vector into a 1 x N Matrix.
+Matrix vector_as_matrix(Vector v) {
+    return (Matrix) {
+        .rows = 1,
+        .cols = v.cols,
+        .data = v.data
+    };
+};

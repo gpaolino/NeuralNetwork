@@ -5,6 +5,7 @@ BINDIR=build
 SRC=$(wildcard src/*.c)
 OBJ=$(SRC:src/%.c=$(OBJDIR)/%.o)
 TARGET=$(BINDIR)/nn
+LDFLAGS=-lm
 
 all: $(TARGET)
 
@@ -14,7 +15,7 @@ $(OBJDIR)/%.o: src/%.c
 
 $(TARGET): $(OBJ)
 	@mkdir -p $(BINDIR)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 clean:
 	rm -rf $(OBJDIR) $(BINDIR)
