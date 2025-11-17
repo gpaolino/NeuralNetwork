@@ -125,11 +125,83 @@ Vector network_forward(Network n, Vector input) {
     return n.activation[n.layer_count - 1];
 }
 
-// float network_cost(Network n) {
-// }
+// Compute the cost of the current parameters choice.
+float network_cost(Network n) {
+    float cost = 0.0f;
 
-// void network_learn(Network n, float epsilon, float learning_rate) {
-// }
+    // TODO: parametrize the input construction
+    Vector input = vector_alloc(2);
+    Vector output;
+    
+    for (size_t i = 0; i < TRAIN_COUNT; i++) {
+        input.data[0] = TRAIN_DATA[i][0];
+        input.data[1] = TRAIN_DATA[i][1];
+        output = network_forward(n, input);
+
+        float y_expected = TRAIN_DATA[i][2];
+        float y_obtained = output.data[0];
+
+        float d = y_obtained - y_expected;
+
+        /*
+            Square to make sure that the cost function will have a
+            continuous partial derivative. This is needed to implement
+            gradient descent as a learning algorithm.
+        */
+       cost += d*d;
+    }
+
+    // Return the average cost
+    cost /= TRAIN_COUNT;
+    return cost;
+}
+
+// Uses finite differences to compute the gradient. Can improve it using backpropagation.
+void network_learn(Network n, float epsilon, float learning_rate) {
+    float base_cost = network_cost(n);
+
+    for (size_t l = 0; l < n.layer_count - 1; l++) {
+
+        // Finite differences on weights
+        for (size_t row = 0; row < n.weight[l].rows; row++) {
+            for (size_t col = 0; col < n.weight[l].cols; col++) {
+                // Save original
+                float original = MATRIX_AT(n.weight[l], row, col);
+
+                // Perturb parameter
+                MATRIX_AT(n.weight[l], row, col) += epsilon;
+
+                // Compute new cost
+                float new_cost = network_cost(n);
+
+                // Estimate gradient
+                float gradient = (new_cost - base_cost) / epsilon;
+
+                // Update parameter through gradient descent
+                MATRIX_AT(n.weight[l], row, col) = original - learning_rate * gradient;
+            }
+        }
+        
+
+        // Finite differences on bias
+        for (size_t col = 0; col < n.bias[l].cols; col++) {
+            // Save original
+            float original = n.bias[l].data[col];
+
+            // Perturb parameter
+            n.bias[l].data[col] += epsilon;
+
+            // Compute new cost
+            float new_cost = network_cost(n);
+
+            // Estimate gradient
+            float gradient = (new_cost - base_cost) / epsilon;
+
+            // Update parameter through gradient descent
+            n.bias[l].data[col] = original - learning_rate * gradient;
+        }
+    }
+}
 
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -150,12 +222,35 @@ int main(void) {
     network_fill_rand(nn, 0.0f, 1.0f);
     //network_print(nn);
 
-    Vector input = vector_alloc(2);
-    input.data[0] = 0.0f;
-    input.data[1] = 0.1f;
+    //Vector input = vector_alloc(2);
+    //input.data[0] = 0.0f;
+    //input.data[1] = 0.1f;
 
-    Vector output = network_forward(nn, input);
-    vector_print(output);
+    //Vector output = network_forward(nn, input);
+    //vector_print(output);
+
+    float cost = network_cost(nn);
+    printf("Original cost: %f\n", cost);
+
+    float learning_rate = 1e-2;
+    float epsilon = 1e-3;
+    int epochs = 500 * 300;
+    for (int i = 0; i < epochs; i++) {
+        network_learn(nn, epsilon, learning_rate);
+    }
+
+    cost = network_cost(nn);
+    printf("Cost after training: %f\n", cost);
+
+    printf("----------------------------------------\n");
+
+    for (size_t i = 0; i < TRAIN_COUNT; i++) {
+        Vector input = vector_alloc(2);
+        input.data[0] = TRAIN_DATA[i][0];
+        input.data[1] = TRAIN_DATA[i][1];
+        Vector output = network_forward(nn, input);
+        printf("%f xor %f = %f\n", input.data[0], input.data[1], output.data[0]);
+    }
 
     return 0;
 }
