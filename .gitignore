@@ -62,6 +62,11 @@ dkms.conf
 .vscode/extensions.json 
 .history
 
+# devcpp
+*.dev
+*.layout
+*.win
+
 # SonarQube
 .scannerwork/
 sonar-project.properties
