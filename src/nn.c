@@ -10,11 +10,41 @@
     A static 2D array representing the XOR truth table. Each row contains {x1, x2, y}.
     It uses float rather than int. That’s fine if you want float-based neural net inputs/targets.
 */
+
+/*	XOR truth table: */
+char FNC_NAME[] = "XOR";
 float TRAIN_DATA[][3] = {
     {0, 0, 0},
     {0, 1, 1},
     {1, 0, 1},
     {1, 1, 0}};
+
+/*	AND truth table:
+char FNC_NAME[] = "AND";
+float TRAIN_DATA[][3] = {
+    {0, 0, 0},
+    {0, 1, 0},
+    {1, 0, 0},
+    {1, 1, 1}};
+*/
+
+/*	OR truth table:
+char FNC_NAME[] = "OR";
+float TRAIN_DATA[][3] = {
+    {0, 0, 0},
+    {0, 1, 1},
+    {1, 0, 1},
+    {1, 1, 1}};
+*/
+
+/*	NAND truth table:
+char FNC_NAME[] = "NAND";
+float TRAIN_DATA[][3] = {
+    {0, 0, 1},
+    {0, 1, 1},
+    {1, 0, 1},
+    {1, 1, 0}};
+*/
 
 // Macro to compute number of training rows at compile time.
 #define TRAIN_COUNT (sizeof(TRAIN_DATA) / sizeof(TRAIN_DATA[0]))
@@ -80,7 +110,7 @@ void network_fill_rand(Network n, float low, float high) {
 // Print Neural Network parameters.
 void network_print(Network n) {
     for (size_t i = 0; i < n.layer_count - 1; i++) {
-        printf("Layer n. %d\n\n", (int)(i + 1));
+        printf("==Layer n. %d\n\n", (int)(i + 1));
         printf("  Weight matrix:\n");
         matrix_print(n.weight[i]);
         printf("\n\n");
@@ -206,28 +236,20 @@ void network_learn(Network n, float epsilon, float learning_rate) {
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 int main(void) {
-    printf("Hello World!\n\n");
-
-    /* XOR network with
+	
+	printf("%s\n", FNC_NAME);
+	
+    /* FNC network with
      - input layer of 2 neurons
-     - hidden layer of 2 neurons
+     - hidden layer of 3 neurons
      - output layer of 1 neuron
     */
-    size_t xor_layer[] = {2, 2, 1};
-    size_t xor_layer_count = sizeof(xor_layer) / sizeof(size_t);
+    size_t fnc_layer[] = {2, 3, 1};
+    size_t fnc_layer_count = sizeof(fnc_layer) / sizeof(size_t);
+    printf("fnc_layer_count: %zu\n\n", fnc_layer_count);
 
-    printf("xor_layer_count: %zu\n\n", xor_layer_count);
-
-    Network nn = network_alloc(xor_layer, xor_layer_count);
+    Network nn = network_alloc(fnc_layer, fnc_layer_count);
     network_fill_rand(nn, 0.0f, 1.0f);
-    //network_print(nn);
-
-    //Vector input = vector_alloc(2);
-    //input.data[0] = 0.0f;
-    //input.data[1] = 0.1f;
-
-    //Vector output = network_forward(nn, input);
-    //vector_print(output);
 
     float cost = network_cost(nn);
     printf("Original cost: %f\n", cost);
@@ -240,16 +262,18 @@ int main(void) {
     }
 
     cost = network_cost(nn);
-    printf("Cost after training: %f\n", cost);
+    printf("Cost after training: %f\n\n", cost);
+    
+	network_print(nn);
 
-    printf("----------------------------------------\n");
+    printf("--------------------------------\n");
 
     for (size_t i = 0; i < TRAIN_COUNT; i++) {
         Vector input = vector_alloc(2);
         input.data[0] = TRAIN_DATA[i][0];
         input.data[1] = TRAIN_DATA[i][1];
         Vector output = network_forward(nn, input);
-        printf("%f xor %f = %f\n", input.data[0], input.data[1], output.data[0]);
+        printf("%f %s %f = %f\n", input.data[0], FNC_NAME, input.data[1], output.data[0]);
     }
 
     return 0;
