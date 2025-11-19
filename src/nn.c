@@ -11,13 +11,14 @@
     It uses float rather than int. That’s fine if you want float-based neural net inputs/targets.
 */
 
-/*	XOR truth table: */
+/*	XOR truth table:*/
 char FNC_NAME[] = "XOR";
 float TRAIN_DATA[][3] = {
     {0, 0, 0},
     {0, 1, 1},
     {1, 0, 1},
     {1, 1, 0}};
+
 
 /*	AND truth table:
 char FNC_NAME[] = "AND";
@@ -45,6 +46,25 @@ float TRAIN_DATA[][3] = {
     {1, 0, 1},
     {1, 1, 0}};
 */
+
+/*	NOT-A truth table:
+char FNC_NAME[] = "NOT-A";
+float TRAIN_DATA[][3] = {
+    {0, 0, 1},
+    {0, 1, 1},
+    {1, 0, 0},
+    {1, 1, 0}};
+*/
+
+/*	NOT-B truth table:
+char FNC_NAME[] = "NOT-B";
+float TRAIN_DATA[][3] = {
+    {0, 0, 1},
+    {0, 1, 0},
+    {1, 0, 1},
+    {1, 1, 0}};
+*/
+
 
 // Macro to compute number of training rows at compile time.
 #define TRAIN_COUNT (sizeof(TRAIN_DATA) / sizeof(TRAIN_DATA[0]))
@@ -91,7 +111,7 @@ Network network_alloc(size_t *layer, size_t layer_count) {
 
     n.activation[0] = vector_alloc(layer[0]);
     for (size_t i = 1; i < n.layer_count; i++) {
-        n.weight[i - 1] = matrix_alloc(n.activation[i - 1].cols, layer[i]);
+        n.weight[i - 1] = matrix_alloc(n.activation[i - 1].len, layer[i]);
         n.bias[i - 1] = vector_alloc(layer[i]);
         n.activation[i] = vector_alloc(layer[i]);
     }
@@ -214,7 +234,7 @@ void network_learn(Network n, float epsilon, float learning_rate) {
         
 
         // Finite differences on bias
-        for (size_t col = 0; col < n.bias[l].cols; col++) {
+        for (size_t col = 0; col < n.bias[l].len; col++) {
             // Save original
             float original = n.bias[l].data[col];
 
@@ -237,7 +257,7 @@ void network_learn(Network n, float epsilon, float learning_rate) {
 
 int main(void) {
 	
-	printf("%s\n", FNC_NAME);
+	printf("======= %s =======\n", FNC_NAME);
 	
     /* FNC network with
      - input layer of 2 neurons
@@ -256,7 +276,7 @@ int main(void) {
 
     float learning_rate = 1e-2;
     float epsilon = 1e-3;
-    int epochs = 500 * 300;
+    int epochs = 500 * 500;
     for (int i = 0; i < epochs; i++) {
         network_learn(nn, epsilon, learning_rate);
     }

@@ -104,18 +104,18 @@ void matrix_apply(Matrix a, float (*act_fn)(float)) {
     }
 }
 
-// Allocates a Vector of length cols and zeroes it.
-Vector vector_alloc(size_t cols) {
+// Allocates a Vector of length len and zeroes it.
+Vector vector_alloc(size_t len) {
     Vector v = {0};
 
-    v.cols = cols;
-    v.data = malloc(sizeof(float) * cols);
+    v.len = len;
+    v.data = malloc(sizeof(float) * len);
     if (v.data == NULL) {
         fprintf(stderr, "[ERROR] - Could not alloc in vector_alloc()\n");
         exit(1);
     }
 
-    for (size_t i = 0; i < cols; i++) {
+    for (size_t i = 0; i < len; i++) {
         v.data[i] = 0.0f;
     }
 
@@ -124,14 +124,14 @@ Vector vector_alloc(size_t cols) {
 
 // Fill a vector with random values between low and high.
 void vector_fill_rand(Vector v, float low, float high) {
-    for (size_t i = 0; i < v.cols; i++) {
+    for (size_t i = 0; i < v.len; i++) {
         v.data[i] = rand_float_range(low, high);
     }
 }
 
 // Print a vector.
 void vector_print(Vector v) {
-    for (size_t i = 0; i < v.cols; i++) {
+    for (size_t i = 0; i < v.len; i++) {
         printf("%.2f ", v.data[i]);
     }
     printf("\n");
@@ -141,7 +141,7 @@ void vector_print(Vector v) {
 Matrix vector_as_matrix(Vector v) {
     return (Matrix) {
         .rows = 1,
-        .cols = v.cols,
+        .cols = v.len,
         .data = v.data
     };
 };

@@ -5,7 +5,7 @@
 
 // Vector is a 1-D container.
 typedef struct {
-    size_t cols;
+    size_t len;
     float *data;
 } Vector;
 
@@ -26,7 +26,7 @@ void matrix_copy(Matrix dst, Matrix src);
 void matrix_mult(Matrix dst, Matrix a, Matrix b);
 void matrix_sum(Matrix dst, Matrix a);
 void matrix_apply(Matrix a, float (*act_fn)(float));
-Vector vector_alloc(size_t cols);
+Vector vector_alloc(size_t len);
 void vector_fill_rand(Vector v, float low, float high);
 void vector_print(Vector v);
 Matrix vector_as_matrix(Vector v);
