@@ -74,3 +74,4 @@ sonar-scan-run.txt
 
 # Custom Paths
 build/
+data/
