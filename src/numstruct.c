@@ -104,8 +104,8 @@ void matrix_apply(Matrix a, float (*act_fn)(float)) {
     }
 }
 
-// Load a 0-1 matrix from a file.
-Matrix matrix_load(size_t rows, size_t cols, const char *filename) {
+// Load a 0|1 matrix from a file.
+Matrix matrix_load_from_file(size_t rows, size_t cols, const char *filename) {
     Matrix m = matrix_alloc(rows, cols);
 
     FILE *fp = fopen(filename, "r");
@@ -116,7 +116,7 @@ Matrix matrix_load(size_t rows, size_t cols, const char *filename) {
 
     for(size_t i = 0; i < rows; i++) {
         for(size_t j = 0; j < cols; j++) {
-            if(fscanf(fp, "%d", &MATRIX_AT(m, i, j)) != 1) {
+            if(fscanf(fp, "%f", &MATRIX_AT(m, i, j)) != 1) {
                 fprintf(stderr, "[ERROR] - Could not read data from file %s in matrix_load_from_file()\n", filename);
                 fclose(fp);
                 exit(1);
@@ -126,12 +126,13 @@ Matrix matrix_load(size_t rows, size_t cols, const char *filename) {
 
     fclose(fp);
 
-    // Test print
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++)
-            printf("%d ", MATRIX_AT(m, i, j));
+    /* Print matrix
+    for (size_t i = 0; i < rows; i++) {
+        for (size_t j = 0; j < cols; j++)
+            printf("%f ", MATRIX_AT(m, i, j));
         printf("\n");
     }
+    */
 
     return m;
 }
