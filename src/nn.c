@@ -273,6 +273,7 @@ int main(void) {
 
     float cost = network_cost(nn);
     printf("Original cost: %f\n", cost);
+    printf("Training in progress...\n");
 
     float learning_rate = 1e-2;
     float epsilon = 1e-3;
