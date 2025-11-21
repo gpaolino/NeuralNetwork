@@ -26,6 +26,7 @@ void matrix_copy(Matrix dst, Matrix src);
 void matrix_mult(Matrix dst, Matrix a, Matrix b);
 void matrix_sum(Matrix dst, Matrix a);
 void matrix_apply(Matrix a, float (*act_fn)(float));
+Matrix matrix_load_from_file(size_t rows, size_t cols, const char *filename);
 Vector vector_alloc(size_t len);
 void vector_fill_rand(Vector v, float low, float high);
 void vector_print(Vector v);

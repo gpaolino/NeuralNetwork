@@ -256,6 +256,8 @@ void network_learn(Network n, float epsilon, float learning_rate) {
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 int main(void) {
+    //Matrix trainset = matrix_load_from_file(1000, 94, "test3.txt");
+    //return 0;
 	
 	printf("======= %s =======\n", FNC_NAME);
 	

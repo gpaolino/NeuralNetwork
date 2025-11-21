@@ -104,6 +104,38 @@ void matrix_apply(Matrix a, float (*act_fn)(float)) {
     }
 }
 
+// Load a 0-1 matrix from a file.
+Matrix matrix_load(size_t rows, size_t cols, const char *filename) {
+    Matrix m = matrix_alloc(rows, cols);
+
+    FILE *fp = fopen(filename, "r");
+    if(!fp) {
+        fprintf(stderr, "[ERROR] - Could not open file %s in matrix_load_from_file()\n", filename);
+        exit(1);
+    }
+
+    for(size_t i = 0; i < rows; i++) {
+        for(size_t j = 0; j < cols; j++) {
+            if(fscanf(fp, "%d", &MATRIX_AT(m, i, j)) != 1) {
+                fprintf(stderr, "[ERROR] - Could not read data from file %s in matrix_load_from_file()\n", filename);
+                fclose(fp);
+                exit(1);
+            }
+        }
+    }
+
+    fclose(fp);
+
+    // Test print
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++)
+            printf("%d ", MATRIX_AT(m, i, j));
+        printf("\n");
+    }
+
+    return m;
+}
+
 // Allocates a Vector of length len and zeroes it.
 Vector vector_alloc(size_t len) {
     Vector v = {0};
