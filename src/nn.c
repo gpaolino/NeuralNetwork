@@ -4,70 +4,27 @@
 #include "numstruct.h"
 #include "utils.h"
 
-/*
-    NOTE: For this example we assume XOR training dataset as fixed, in the future we will make this variable
+float** TRAIN_DATA;
+size_t TRAIN_COUNT;
+
+/*  NOTE: For this example we assume XOR training dataset as fixed, in the future we will make this variable
 
     A static 2D array representing the XOR truth table. Each row contains {x1, x2, y}.
     It uses float rather than int. That’s fine if you want float-based neural net inputs/targets.
 */
-
-/*	XOR truth table:*/
+/*	XOR truth table:
 char FNC_NAME[] = "XOR";
 float TRAIN_DATA[][3] = {
     {0, 0, 0},
     {0, 1, 1},
     {1, 0, 1},
     {1, 1, 0}};
-
-
-/*	AND truth table:
-char FNC_NAME[] = "AND";
-float TRAIN_DATA[][3] = {
-    {0, 0, 0},
-    {0, 1, 0},
-    {1, 0, 0},
-    {1, 1, 1}};
 */
 
-/*	OR truth table:
-char FNC_NAME[] = "OR";
-float TRAIN_DATA[][3] = {
-    {0, 0, 0},
-    {0, 1, 1},
-    {1, 0, 1},
-    {1, 1, 1}};
+/*  TODO: extend the framework in order to manage large matrix as train data input
+    char FNC_NAME[] = "PokerHand";
+    float** TRAIN_DATA = load_train_data("data/poker+hand+normalized/test3.txt", 1000, 94);
 */
-
-/*	NAND truth table:
-char FNC_NAME[] = "NAND";
-float TRAIN_DATA[][3] = {
-    {0, 0, 1},
-    {0, 1, 1},
-    {1, 0, 1},
-    {1, 1, 0}};
-*/
-
-/*	NOT-A truth table:
-char FNC_NAME[] = "NOT-A";
-float TRAIN_DATA[][3] = {
-    {0, 0, 1},
-    {0, 1, 1},
-    {1, 0, 0},
-    {1, 1, 0}};
-*/
-
-/*	NOT-B truth table:
-char FNC_NAME[] = "NOT-B";
-float TRAIN_DATA[][3] = {
-    {0, 0, 1},
-    {0, 1, 0},
-    {1, 0, 1},
-    {1, 1, 0}};
-*/
-
-
-// Macro to compute number of training rows at compile time.
-#define TRAIN_COUNT (sizeof(TRAIN_DATA) / sizeof(TRAIN_DATA[0]))
 
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -95,6 +52,8 @@ float network_cost(Network n); // Assume cost with respect to XOR
 void network_learn(Network n, float epsilon, float learning_rate);
 
 void network_print(Network n);
+
+float** load_train_data(const char* filename, size_t* rows, size_t cols);
 
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -138,6 +97,50 @@ void network_print(Network n) {
         vector_print(n.bias[i]);
         printf("\n\n");
     }
+}
+
+// Load train dataset from file.
+float** load_train_data(const char* filename, size_t* rows, size_t cols) {
+    FILE* fp = fopen(filename, "r");
+    if (!fp) {
+        fprintf(stderr, "[ERROR] - Could not open file %s in load_train_data()\n", filename);
+        exit(1);
+    }
+
+    // Count the rows
+    size_t count = 0;
+    char buffer[256];
+    while (fgets(buffer, sizeof(buffer), fp)) {
+        count++;
+    }
+
+    *rows = count;
+
+    // Back to the beginning of file
+    fseek(fp, 0, SEEK_SET);
+
+    // Dynamically allocate the table
+    float** table = malloc(count * sizeof(float*));
+    for (size_t i = 0; i < count; i++) {
+        table[i] = malloc(cols * sizeof(float));
+        for (size_t j = 0; j < cols; j++) {
+            fscanf(fp, "%f", &table[i][j]);
+        }
+    }
+
+    /* Test print
+    printf("Loaded %zu rows:\n", *rows);
+
+    for (size_t i = 0; i < *rows; i++) {
+        for (size_t j = 0; j < cols; j++) {
+            printf("%f ", table[i][j]);
+        }
+        printf("\n");
+    }
+    */
+
+    fclose(fp);
+    return table;
 }
 
 // Feed an input into the network and compute an output.
@@ -256,13 +259,18 @@ void network_learn(Network n, float epsilon, float learning_rate) {
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 int main(void) {
+    char FNC_NAME[] = "XOR";
 	printf("======= %s =======\n", FNC_NAME);
+
+    size_t rows;
+    const size_t cols = 3;
+    TRAIN_DATA = load_train_data("data/logic+gates/xor_truth_table.txt", &rows, cols);
+    TRAIN_COUNT = rows;
 	
-    /* FNC network with
-     - input layer of 2 neurons
-     - hidden layer of 3 neurons
-     - output layer of 1 neuron
-    */
+    // FNC network with
+    // - input layer of 2 neurons
+    // - hidden layer of 3 neurons
+    // - output layer of 1 neuron    
     size_t fnc_layer[] = {2, 3, 1};
     size_t fnc_layer_count = sizeof(fnc_layer) / sizeof(size_t);
     printf("fnc_layer_count: %zu\n\n", fnc_layer_count);
