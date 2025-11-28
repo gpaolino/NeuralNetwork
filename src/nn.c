@@ -264,7 +264,7 @@ int main(void) {
 
     size_t rows;
     const size_t cols = 3;
-    TRAIN_DATA = load_train_data("data/logic+gates/xor_truth_table.txt", &rows, cols);
+    TRAIN_DATA = load_train_data("./data/logic+gates/xor_truth_table.txt", &rows, cols);
     TRAIN_COUNT = rows;
 	
     // FNC network with
