@@ -201,7 +201,7 @@ float network_cost(Network n) {
             continuous partial derivative. This is needed to implement
             gradient descent as a learning algorithm.
         */
-       cost += d*d;
+        cost += d*d;
     }
 
     // Return the average cost
@@ -280,6 +280,8 @@ int main(void) {
 
     float cost = network_cost(nn);
     printf("Original cost: %f\n", cost);
+
+    // Start the training process
     printf("Training in progress...\n");
 
     float learning_rate = 1e-2;
@@ -296,6 +298,7 @@ int main(void) {
 
     printf("--------------------------------\n");
 
+    // Feed the network with the inputs and see the result
     for (size_t i = 0; i < TRAIN_COUNT; i++) {
         Vector input = vector_alloc(2);
         input.data[0] = TRAIN_DATA[i][0];
