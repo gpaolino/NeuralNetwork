@@ -48,8 +48,8 @@ typedef struct {
 Network network_alloc(size_t *layer, size_t layer_count);
 void network_fill_rand(Network n, float high, float low);
 Vector network_forward(Network n, Vector input);
-float network_cost(Network n); // Assume cost with respect to XOR
-void network_learn(Network n, float epsilon, float learning_rate);
+float network_cost(Network n);
+//void network_learn(Network n, float epsilon, float learning_rate);
 
 void network_print(Network n);
 
@@ -182,30 +182,36 @@ Vector network_forward(Network n, Vector input) {
 float network_cost(Network n) {
     float cost = 0.0f;
 
-    // TODO: parametrize the input construction
-    Vector input = vector_alloc(2);
+    size_t inputs_len = n.layer[0];   // <<-- number of network inputs
+    Vector input = vector_alloc(inputs_len);
+
+    size_t outputs_len = n.layer[n.layer_count - 1];   // <<-- number of network outputs
     Vector output;
     
     for (size_t i = 0; i < TRAIN_COUNT; i++) {
-        input.data[0] = TRAIN_DATA[i][0];
-        input.data[1] = TRAIN_DATA[i][1];
+        for (size_t j = 0; j < inputs_len; j++) {
+            input.data[j] = TRAIN_DATA[i][j];
+        }
         output = network_forward(n, input);
 
-        float y_expected = TRAIN_DATA[i][2];
-        float y_obtained = output.data[0];
+        // --- multi-output comparison ---
+        for (size_t k = 0; k < outputs_len; k++) {
+            float y_expected = TRAIN_DATA[i][inputs_len + k];
+            float y_obtained = output.data[k];
 
-        float d = y_obtained - y_expected;
+            float d = y_obtained - y_expected;
 
-        /*
-            Square to make sure that the cost function will have a
-            continuous partial derivative. This is needed to implement
-            gradient descent as a learning algorithm.
-        */
-        cost += d*d;
+            /*
+                Square to make sure that the cost function will have a
+                continuous partial derivative. This is needed to implement
+                gradient descent as a learning algorithm.
+            */
+            cost += d * d;
+        }
     }
 
     // Return the average cost
-    cost /= TRAIN_COUNT;
+    cost /= (TRAIN_COUNT * outputs_len);
     return cost;
 }
 
@@ -259,6 +265,62 @@ void network_learn(Network n, float epsilon, float learning_rate) {
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 int main(void) {
+    char FNC_NAME[] = "BINARY TO POSITIONAL";
+    printf("======= %s =======\n", FNC_NAME);
+
+    size_t rows;
+    const size_t cols = 20;
+    TRAIN_DATA = load_train_data("./data/binary+converter/binary_to_positional.txt", &rows, cols);
+    TRAIN_COUNT = rows;
+
+    // FNC network with
+    // - input layer of 4 neurons
+    // - hidden layer of 10 neurons
+    // - output layer of 16 neuron    
+    size_t fnc_layer[] = {4, 10, 16};
+    size_t fnc_layer_count = sizeof(fnc_layer) / sizeof(size_t);
+    printf("fnc_layer_count: %zu\n\n", fnc_layer_count);
+
+    Network nn = network_alloc(fnc_layer, fnc_layer_count);
+    network_fill_rand(nn, 0.0f, 1.0f);
+
+    float cost = network_cost(nn);
+    printf("Original cost: %f\n", cost);
+
+    // Start the training process
+    printf("Training in progress...\n");
+
+    float learning_rate = 1e-2;
+    float epsilon = 1e-3;
+    int epochs = 500 * 1500;
+    for (int i = 0; i < epochs; i++) {
+        if ((i + 1) % 5000 == 0) {
+            printf("Epoch %d\n", i + 1);
+        }
+        network_learn(nn, epsilon, learning_rate);
+    }
+
+    cost = network_cost(nn);
+    printf("Cost after training: %f\n\n", cost);
+
+    network_print(nn);
+
+    printf("--------------------------------\n");
+
+    // Feed the network with the inputs and see the result
+    for (size_t i = 0; i < TRAIN_COUNT; i++) {
+        Vector input = vector_alloc(nn.layer[0]);
+
+        for (size_t j = 0; j < nn.layer[0]; j++) {
+            input.data[j] = TRAIN_DATA[i][j];
+        }
+        Vector output = network_forward(nn, input);
+        printf("Row %02zu %s = %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n", i, FNC_NAME, output.data[0], output.data[1], output.data[2], output.data[3], output.data[4], output.data[5], output.data[6], output.data[7], output.data[8], output.data[9], output.data[10], output.data[11], output.data[12], output.data[13], output.data[14], output.data[15]);
+    }
+
+    return 0;
+
+    /*
     char FNC_NAME[] = "XOR";
 	printf("======= %s =======\n", FNC_NAME);
 
@@ -308,4 +370,5 @@ int main(void) {
     }
 
     return 0;
+    */
 }
