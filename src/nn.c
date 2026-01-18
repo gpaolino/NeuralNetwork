@@ -89,10 +89,10 @@ void network_fill_rand(Network n, float low, float high) {
 // Print Neural Network parameters.
 void network_print(Network n) {
     for (size_t i = 0; i < n.layer_count - 1; i++) {
-        printf("==Layer n. %d\n\n", (int)(i + 1));
+        printf("=== Layer n. %d\n\n", (int)(i + 1));
         printf("  Weight matrix:\n");
         matrix_print(n.weight[i]);
-        printf("\n\n");
+        printf("\n");
         printf("  Bias vector:\n");
         vector_print(n.bias[i]);
         printf("\n\n");
@@ -266,8 +266,9 @@ void network_learn(Network n, float epsilon, float learning_rate) {
 
 int main(void) {
 
-    char FNC_NAME[] = "LOGIC FNC";
-	printf("======= %s =======\n", FNC_NAME);
+    char FNC_NAME[] = "Logic Fnc";
+    printf("\n");
+	print_center("======= %s =======\n", FNC_NAME);
 
     size_t rows;
     const size_t cols = 3;
@@ -287,16 +288,16 @@ int main(void) {
     */
     size_t fnc_layer[] = {2, 3, 1};
     size_t fnc_layer_count = sizeof(fnc_layer) / sizeof(size_t);
-    printf("fnc_layer_count: %zu\n\n", fnc_layer_count);
+    print_center("fnc_layer_count: %zu\n", fnc_layer_count);
 
     Network nn = network_alloc(fnc_layer, fnc_layer_count);
     network_fill_rand(nn, 0.0f, 1.0f);
 
     float cost = network_cost(nn);
-    printf("Original cost: %f\n", cost);
+    print_center("Original cost: %f\n", cost);
 
     // Start the training process
-    printf("Training in progress...\n");
+    print_center("Training in progress...\n\n");
 
     float learning_rate = 1e-2;
     float epsilon = 1e-3;
@@ -306,11 +307,11 @@ int main(void) {
     }
 
     cost = network_cost(nn);
-    printf("Cost after training: %f\n\n", cost);
+    print_center("Cost after training: %f\n\n", cost);
     
 	network_print(nn);
 
-    printf("--------------------------------\n");
+    print_center("--------------------------------\n");
 
     // Feed the network with the inputs and see the result
     for (size_t i = 0; i < TRAIN_COUNT; i++) {
@@ -318,9 +319,10 @@ int main(void) {
         input.data[0] = TRAIN_DATA[i][0];
         input.data[1] = TRAIN_DATA[i][1];
         Vector output = network_forward(nn, input);
-        printf("%f %s %f = %f\n", input.data[0], FNC_NAME, input.data[1], output.data[0]);
+        print_center("%f %s %f = %f\n", input.data[0], FNC_NAME, input.data[1], output.data[0]);
     }
 
+    printf("\n");
     return 0;
 
     /*
